@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Quiz 6º Ano Completo</title>
+
+<style>
+body{font-family:Arial;background:linear-gradient(135deg,#4facfe,#00f2fe);margin:0}
+.container{max-width:900px;margin:40px auto;background:#fff;padding:20px;border-radius:15px}
+button{padding:15px;margin:8px;border:none;border-radius:10px;background:#4facfe;color:#fff;cursor:pointer;width:100%;font-size:16px}
+button:hover{background:#007bff}
+.option{display:flex;align-items:center;font-size:18px}
+.letra{background:#007bff;color:#fff;padding:5px 10px;border-radius:6px;margin-right:10px}
+.hidden{display:none}
+h1{text-align:center}
+.top{display:flex;justify-content:space-between}
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+<div class="top">
+<button onclick="voltar()" id="btnVoltar"></button>
+<select onchange="trocarIdioma(this.value)">
+<option value="pt">Português</option>
+<option value="en">English</option>
+<option value="es">Español</option>
+</select>
+</div>
+
+<div id="menu">
+<h1 id="titulo"></h1>
+<div id="materias"></div>
+</div>
+
+<div id="nivel" class="hidden">
+<h1 id="nivelTitulo"></h1>
+<div id="niveis"></div>
+</div>
+
+<div id="quiz" class="hidden">
+<h2 id="pergunta"></h2>
+<div id="ops"></div>
+<p id="placar"></p>
+</div>
+
+<div id="final" class="hidden">
+<h1 id="resultado"></h1>
+<p id="textoFinal"></p>
+</div>
+
+</div>
+
+<script>
+
+let idioma="pt";
+let atual="";
+let perguntas=[];
+let i=0;
+let pontos=0;
+
+// progresso
+let progresso={};
+
+let materias=["m1","m2","portugues","ciencias","historia","geografia","artes","redacao","ingles","espanhol"];
+
+materias.forEach(m=>{
+progresso[m]={facil:true,medio:false,dificil:false};
+});
+
+// nomes
+const nomes={
+pt:{m1:"Matemática",m2:"Matemática 2",portugues:"Português",ciencias:"Ciências",historia:"História",geografia:"Geografia",artes:"Artes",redacao:"Redação",ingles:"Inglês",espanhol:"Espanhol"},
+en:{m1:"Math",m2:"Math 2",portugues:"Portuguese",ciencias:"Science",historia:"History",geografia:"Geography",artes:"Arts",redacao:"Writing",ingles:"English",espanhol:"Spanish"},
+es:{m1:"Matemáticas",m2:"Matemáticas 2",portugues:"Portugués",ciencias:"Ciencias",historia:"Historia",geografia:"Geografía",artes:"Artes",redacao:"Redacción",ingles:"Inglés",espanhol:"Español"}
+};
+
+// textos
+const t={
+pt:{titulo:"Escolha a matéria",nivel:"Escolha a dificuldade",facil:"Fácil",medio:"Médio",dificil:"Difícil",voltar:"⬅ Voltar",pontos:"Pontos",resultado:"Resultado"},
+en:{titulo:"Choose subject",nivel:"Choose difficulty",facil:"Easy",medio:"Medium",dificil:"Hard",voltar:"⬅ Back",pontos:"Points",resultado:"Result"},
+es:{titulo:"Elegir materia",nivel:"Elegir dificultad",facil:"Fácil",medio:"Medio",dificil:"Difícil",voltar:"⬅ Volver",pontos:"Puntos",resultado:"Resultado"}
+};
+
+// EMBARALHAR
+function shuffle(p){
+let arr=p.a.map((x,i)=>({x,ok:i===p.c}));
+arr.sort(()=>Math.random()-0.5);
+p.a=arr.map(e=>e.x);
+p.c=arr.findIndex(e=>e.ok);
+return p;
+}
+
+// BANCO REAL (exemplo completo funcional)
+const banco={
+
+m1:{
+facil:[
+{q:{pt:"Quanto é 7+5?",en:"7+5?",es:"7+5?"},a:["12","10","13","11"],c:0},
+{q:{pt:"Quanto é 9-4?",en:"9-4?",es:"9-4?"},a:["5","4","6","3"],c:0},
+{q:{pt:"Quanto é 6+3?",en:"6+3?",es:"6+3?"},a:["9","8","10","7"],c:0},
+{q:{pt:"Quanto é 10-6?",en:"10-6?",es:"10-6?"},a:["4","3","5","2"],c:0}
+],
+medio:[
+{q:{pt:"Quanto é 8x3?",en:"8x3?",es:"8x3?"},a:["24","20","26","22"],c:0},
+{q:{pt:"Quanto é 15+7?",en:"15+7?",es:"15+7?"},a:["22","21","23","20"],c:0},
+{q:{pt:"Quanto é 20-9?",en:"20-9?",es:"20-9?"},a:["11","10","12","9"],c:0}
+],
+dificil:[
+{q:{pt:"Quanto é 36÷6?",en:"36÷6?",es:"36÷6?"},a:["6","5","7","8"],c:0},
+{q:{pt:"Quanto é 25x2?",en:"25x2?",es:"25x2?"},a:["50","40","45","55"],c:0},
+{q:{pt:"Quanto é 100-37?",en:"100-37?",es:"100-37?"},a:["63","60","65","62"],c:0}
+]
+},
+
+m2:{
+facil:[
+{q:{pt:"Ângulo reto tem quantos graus?",en:"Right angle?",es:"Ángulo recto?"},a:["90","45","180","360"],c:0},
+{q:{pt:"Triângulo tem quantos lados?",en:"Triangle sides?",es:"Triángulo lados?"},a:["3","4","5","6"],c:0},
+{q:{pt:"Quadrado tem quantos lados?",en:"Square sides?",es:"Cuadrado lados?"},a:["4","3","5","6"],c:0},
+{q:{pt:"Círculo tem lados?",en:"Circle sides?",es:"Círculo lados?"},a:["0","1","2","3"],c:0}
+],
+medio:[
+{q:{pt:"Perímetro é?",en:"Perimeter?",es:"Perímetro?"},a:["soma dos lados","área","volume","altura"],c:0},
+{q:{pt:"Área de quadrado lado 3?",en:"Area side 3?",es:"Área lado 3?"},a:["9","6","3","12"],c:0},
+{q:{pt:"Retângulo tem quantos lados?",en:"Rectangle sides?",es:"Rectángulo lados?"},a:["4","3","5","6"],c:0}
+],
+dificil:[
+{q:{pt:"Área triângulo base 4 altura 2?",en:"Triangle area?",es:"Área triángulo?"},a:["4","8","6","2"],c:0},
+{q:{pt:"Ângulo obtuso é maior que?",en:"Obtuse angle?",es:"Ángulo obtuso?"},a:["90°","45°","30°","0°"],c:0},
+{q:{pt:"Ângulo agudo é menor que?",en:"Acute angle?",es:"Ángulo agudo?"},a:["90°","180°","360°","100°"],c:0}
+]
+},
+
+portugues:{
+facil:[
+{q:{pt:"Qual é o plural de 'flor'?",en:"Plural of 'flower'?",es:"Plural de 'flor'?"},a:["flores","flors","flore","florz"],c:0},
+{q:{pt:"Qual dessas palavras é um substantivo?",en:"Which is a noun?",es:"¿Cuál es un sustantivo?"},a:["cachorro","correr","bonito","rapidamente"],c:0},
+{q:{pt:"Qual é o feminino de 'menino'?",en:"Feminine of 'boy'?",es:"Femenino de 'niño'?"},a:["menina","meninoa","meninaa","menin"],c:0},
+{q:{pt:"Qual começa com vogal?",en:"Starts with vowel?",es:"Empieza con vocal?"},a:["abacaxi","bola","carro","dado"],c:0}
+],
+
+medio:[
+{q:{pt:"Qual é o sinônimo de 'feliz'?",en:"Synonym of 'happy'?",es:"Sinónimo de 'feliz'?"},a:["alegre","triste","raiva","cansado"],c:0},
+{q:{pt:"Qual é o antônimo de 'claro'?",en:"Opposite of 'clear'?",es:"Antónimo de 'claro'?"},a:["escuro","branco","azul","alto"],c:0},
+{q:{pt:"Qual dessas palavras é um verbo?",en:"Which is a verb?",es:"¿Cuál es un verbo?"},a:["correr","mesa","casa","livro"],c:0},
+],
+
+dificil:[
+{q:{pt:"Qual é o plural de 'pão'?",en:"Plural of 'bread'?",es:"Plural de 'pan'?"},a:["pães","pãos","pãeses","pões"],c:0},
+{q:{pt:"Qual dessas palavras é um advérbio?",en:"Which is an adverb?",es:"¿Cuál es un adverbio?"},a:["rapidamente","casa","carro","livro"],c:0},
+{q:{pt:"Qual é o antônimo de 'forte'?",en:"Opposite of 'strong'?",es:"Antónimo de 'fuerte'?"},a:["fraco","alto","grande","rápido"],c:0},
+]
+},
+
+ciencias:{
+facil:[
+{q:{pt:"Planeta em que vivemos?",en:"Our planet?",es:"Nuestro planeta?"},a:["Terra","Marte","Vênus","Júpiter"],c:0},
+{q:{pt:"Água é?",en:"Water is?",es:"Agua es?"},a:["líquido","sólido","gás","plasma"],c:0},
+{q:{pt:"Sol é?",en:"Sun is?",es:"Sol es?"},a:["estrela","planeta","lua","cometa"],c:0},
+{q:{pt:"Respiramos?",en:"We breathe?",es:"Respiramos?"},a:["oxigênio","hidrogênio","CO2","nitrogênio"],c:0}
+],
+medio:[
+{q:{pt:"Plantas fazem?",en:"Plants do?",es:"Plantas hacen?"},a:["fotossíntese","respiração","digestão","circulação"],c:0},
+{q:{pt:"Água ferve a?",en:"Water boils at?",es:"Agua hierve a?"},a:["100°C","0°C","50°C","200°C"],c:0},
+{q:{pt:"Corpo humano tem?",en:"Human body has?",es:"Cuerpo humano tiene?"},a:["órgãos","rodas","asas","motores"],c:0}
+],
+dificil:[
+{q:{pt:"H2O é?",en:"H2O is?",es:"H2O es?"},a:["água","ar","fogo","terra"],c:0},
+{q:{pt:"Coração bombeia?",en:"Heart pumps?",es:"Corazón bombea?"},a:["sangue","ar","água","energia"],c:0},
+{q:{pt:"Pulmão serve para?",en:"Lungs?",es:"Pulmón?"},a:["respirar","andar","comer","pensar"],c:0}
+]
+},
+
+historia:{
+facil:[
+{q:{pt:"Brasil foi colonizado por?",en:"Brazil colonized by?",es:"Brasil colonizado?"},a:["Portugal","Espanha","França","Inglaterra"],c:0},
+{q:{pt:"Ano do descobrimento do Brasil?",en:"Discovery year?",es:"Año descubrimiento?"},a:["1500","1600","1400","1700"],c:0},
+{q:{pt:"Primeiros habitantes do Brasil?",en:"First inhabitants?",es:"Primeros habitantes?"},a:["indígenas","reis","soldados","turistas"],c:0},
+{q:{pt:"Escravidão acabou em?",en:"Slavery ended?",es:"Esclavitud terminó?"},a:["1888","1800","1900","1700"],c:0}
+],
+medio:[
+{q:{pt:"Independência do Brasil?",en:"Independence?",es:"Independencia?"},a:["1822","1800","1900","1500"],c:0},
+{q:{pt:"República começou?",en:"Republic began?",es:"República comenzó?"},a:["1889","1800","1900","1700"],c:0},
+{q:{pt:"Imperador do Brasil?",en:"Emperor?",es:"Emperador?"},a:["Dom Pedro II","Lula","Getúlio","Cabral"],c:0}
+],
+dificil:[
+{q:{pt:"Primeira capital do Brasil?",en:"First capital?",es:"Primera capital?"},a:["Salvador","Rio","SP","Brasília"],c:0},
+{q:{pt:"Quem assinou a Lei Áurea?",en:"Who signed?",es:"Quién firmó?"},a:["Princesa Isabel","Cabral","Getúlio","Dom Pedro"],c:0},
+{q:{pt:"Ano da República?",en:"Republic year?",es:"Año república?"},a:["1889","1822","1500","1900"],c:0}
+]
+},
+
+geografia:{
+facil:[
+{q:{pt:"Capital do Brasil?",en:"Capital?",es:"Capital?"},a:["Brasília","Rio","SP","Salvador"],c:0},
+{q:{pt:"Continente do Brasil?",en:"Continent?",es:"Continente?"},a:["América","Europa","Ásia","África"],c:0},
+{q:{pt:"Oceano do Brasil?",en:"Ocean?",es:"Océano?"},a:["Atlântico","Pacífico","Índico","Ártico"],c:0},
+{q:{pt:"Maior país do mundo?",en:"Largest country?",es:"Mayor país?"},a:["Rússia","Brasil","China","EUA"],c:0}
+],
+medio:[
+{q:{pt:"Clima do Brasil?",en:"Climate?",es:"Clima?"},a:["tropical","polar","ártico","frio"],c:0},
+{q:{pt:"Mapa serve para?",en:"Map?",es:"Mapa?"},a:["mostrar lugares","comer","brincar","correr"],c:0},
+{q:{pt:"Rio é?",en:"River?",es:"Río?"},a:["água","terra","ar","fogo"],c:0}
+],
+dificil:[
+{q:{pt:"Linha do Equador?",en:"Equator?",es:"Ecuador?"},a:["divide hemisférios","oceano","rio","montanha"],c:0},
+{q:{pt:"Latitude?",en:"Latitude?",es:"Latitud?"},a:["norte-sul","leste-oeste","altura","tempo"],c:0},
+{q:{pt:"Longitude?",en:"Longitude?",es:"Longitud?"},a:["leste-oeste","norte-sul","altura","tempo"],c:0}
+]
+},
+
+artes:{
+facil:[
+{q:{pt:"Arte é?",en:"Art?",es:"Arte?"},a:["expressão","conta","regra","ciência"],c:0},
+{q:{pt:"Pintura usa?",en:"Painting?",es:"Pintura?"},a:["tinta","pedra","areia","água"],c:0},
+{q:{pt:"Música usa?",en:"Music?",es:"Música?"},a:["som","luz","água","terra"],c:0},
+{q:{pt:"Desenho usa?",en:"Drawing?",es:"Dibujo?"},a:["lápis","martelo","cola","ferro"],c:0}
+],
+medio:[
+{q:{pt:"Cor primária?",en:"Primary color?",es:"Color primario?"},a:["vermelho","rosa","marrom","cinza"],c:0},
+{q:{pt:"Escultura é?",en:"Sculpture?",es:"Escultura?"},a:["arte 3D","som","texto","dança"],c:0},
+{q:{pt:"Teatro é?",en:"Theater?",es:"Teatro?"},a:["arte","ciência","jogo","regra"],c:0}
+],
+dificil:[
+{q:{pt:"Azul+amarelo?",en:"Blue+yellow?",es:"Azul+amarillo?"},a:["verde","roxo","laranja","preto"],c:0},
+{q:{pt:"Arte visual?",en:"Visual art?",es:"Arte visual?"},a:["pintura","som","cheiro","gosto"],c:0},
+{q:{pt:"Dança é?",en:"Dance?",es:"Danza?"},a:["movimento","parado","escrita","leitura"],c:0}
+]
+},
+
+redacao:{
+facil:[
+{q:{pt:"Texto tem?",en:"Text?",es:"Texto?"},a:["frases","números","cores","sons"],c:0},
+{q:{pt:"Começo do texto?",en:"Start?",es:"Inicio?"},a:["introdução","fim","meio","título"],c:0},
+{q:{pt:"Final do texto?",en:"End?",es:"Final?"},a:["conclusão","meio","título","início"],c:0},
+{q:{pt:"Texto serve para?",en:"Text purpose?",es:"Texto sirve?"},a:["comunicar","correr","pular","brincar"],c:0}
+],
+medio:[
+{q:{pt:"Parágrafo?",en:"Paragraph?",es:"Párrafo?"},a:["grupo de frases","letra","som","cor"],c:0},
+{q:{pt:"Tema?",en:"Theme?",es:"Tema?"},a:["assunto","cor","nome","número"],c:0},
+{q:{pt:"Narrativo?",en:"Narrative?",es:"Narrativo?"},a:["conta história","mede","lista","explica"],c:0}
+],
+dificil:[
+{q:{pt:"Argumento?",en:"Argument?",es:"Argumento?"},a:["opinião","nome","cor","som"],c:0},
+{q:{pt:"Coesão?",en:"Cohesion?",es:"Cohesión?"},a:["ligação ideias","erro","fim","título"],c:0},
+{q:{pt:"Coerência?",en:"Coherence?",es:"Coherencia?"},a:["sentido","erro","cor","nome"],c:0}
+]
+},
+
+ingles:{
+facil:[
+{q:{pt:"Casa em inglês?",en:"House?",es:"Casa en inglés?"},a:["house","car","dog","book"],c:0},
+{q:{pt:"Gato?",en:"Cat?",es:"Gato?"},a:["cat","dog","bird","fish"],c:0},
+{q:{pt:"Água?",en:"Water?",es:"Agua?"},a:["water","fire","earth","air"],c:0},
+{q:{pt:"Sol?",en:"Sun?",es:"Sol?"},a:["sun","moon","star","sky"],c:0}
+],
+medio:[
+{q:{pt:"Plural de cat?",en:"Plural?",es:"Plural?"},a:["cats","cat","cates","catss"],c:0},
+{q:{pt:"Dog é?",en:"Dog?",es:"Dog?"},a:["cachorro","gato","casa","carro"],c:0},
+{q:{pt:"Book?",en:"Book?",es:"Libro?"},a:["livro","mesa","casa","porta"],c:0}
+],
+dificil:[
+{q:{pt:"Big?",en:"Big?",es:"Grande?"},a:["grande","pequeno","alto","baixo"],c:0},
+{q:{pt:"Fast?",en:"Fast?",es:"Rápido?"},a:["rápido","lento","alto","baixo"],c:0},
+{q:{pt:"Good?",en:"Good?",es:"Bueno?"},a:["bom","ruim","alto","baixo"],c:0}
+]
+},
+
+espanhol:{
+facil:[
+{q:{pt:"Gato em espanhol?",en:"Cat in Spanish?",es:"Gato?"},a:["gato","perro","casa","agua"],c:0},
+{q:{pt:"Casa?",en:"House?",es:"Casa?"},a:["casa","perro","gato","libro"],c:0},
+{q:{pt:"Água?",en:"Water?",es:"Agua?"},a:["agua","fuego","aire","tierra"],c:0},
+{q:{pt:"Sol?",en:"Sun?",es:"Sol?"},a:["sol","luna","estrella","cielo"],c:0}
+],
+medio:[
+{q:{pt:"Plural gato?",en:"Plural?",es:"Plural?"},a:["gatos","gato","gatoes","gatoss"],c:0},
+{q:{pt:"Perro?",en:"Dog?",es:"Perro?"},a:["cachorro","gato","casa","água"],c:0},
+{q:{pt:"Libro?",en:"Book?",es:"Libro?"},a:["livro","mesa","casa","carro"],c:0}
+],
+dificil:[
+{q:{pt:"Grande?",en:"Big?",es:"Grande?"},a:["grande","pequeño","alto","bajo"],c:0},
+{q:{pt:"Rápido?",en:"Fast?",es:"Rápido?"},a:["rápido","lento","alto","baixo"],c:0},
+{q:{pt:"Bueno?",en:"Good?",es:"Bueno?"},a:["bom","ruim","alto","baixo"],c:0}
+]
+}
+
+};
+
+// montar menu
+function montar(){
+    let div = document.getElementById("materias");
+    div.innerHTML = "";
+
+    // pega o botão com segurança
+    let btn = document.getElementById("btnVoltar");
+    if(btn){
+        btn.style.display = "none";
+    }
+
+    materias.forEach(m=>{
+        let b = document.createElement("button");
+        b.innerText = (nomes[idioma] && nomes[idioma][m]) ? nomes[idioma][m] : m;
+        
+        b.onclick = ()=>{
+            atual = m;
+
+            document.getElementById("menu").classList.add("hidden");
+            document.getElementById("nivel").classList.remove("hidden");
+
+            // mostra botão voltar com segurança
+            let btn = document.getElementById("btnVoltar");
+            if(btn){
+                btn.style.display = "block";
+            }
+
+            mostrarNiveis();
+        };
+
+        div.appendChild(b);
+    });
+}
+
+// níveis
+function mostrarNiveis(){
+let div=document.getElementById("niveis");
+div.innerHTML="";
+
+if(progresso[atual].facil){
+let b=document.createElement("button");
+b.innerText=t[idioma].facil;
+b.onclick=()=>start("facil");
+div.appendChild(b);
+}
+
+if(progresso[atual].medio){
+let b=document.createElement("button");
+b.innerText=t[idioma].medio;
+b.onclick=()=>start("medio");
+div.appendChild(b);
+}
+
+if(progresso[atual].dificil){
+let b=document.createElement("button");
+b.innerText=t[idioma].dificil;
+b.onclick=()=>start("dificil");
+div.appendChild(b);
+}
+}
+
+// start
+function start(n){
+
+// REMOVE BOTÃO DE PRÓXIMO NÍVEL SE EXISTIR
+let antigo = document.getElementById("btnProximoNivel");
+if(antigo) antigo.remove();
+
+perguntas=banco[atual][n].map(p=>shuffle({...p}));
+i=0;
+pontos=0;
+
+document.getElementById("nivel").classList.add("hidden");
+document.getElementById("final").classList.add("hidden"); // garante que suma
+document.getElementById("quiz").classList.remove("hidden");
+document.getElementById("btnVoltar").style.display = "block";
+
+mostrar();
+}
+
+// mostrar pergunta
+function mostrar(){
+if(i>=perguntas.length){fim();return;}
+
+let p=perguntas[i];
+document.getElementById("pergunta").innerText=p.q[idioma];
+
+let ops=document.getElementById("ops");
+ops.innerHTML="";
+
+["A","B","C","D"].forEach((l,idx)=>{
+let b=document.createElement("button");
+b.className="option";
+b.innerHTML=`<span class="letra">${l}</span> ${p.a[idx]}`;
+b.onclick=()=>responder(idx);
+ops.appendChild(b);
+});
+
+document.getElementById("placar").innerText=t[idioma].pontos+": "+pontos;
+}
+
+// responder
+function responder(x){
+if(x===perguntas[i].c)pontos++;
+i++;
+mostrar();
+}
+
+// fim
+function fim(){
+document.getElementById("quiz").classList.add("hidden");
+document.getElementById("final").classList.remove("hidden");
+
+document.getElementById("textoFinal").innerText=t[idioma].pontos+": "+pontos;
+
+// REMOVE botão antigo se existir
+let antigo = document.getElementById("btnProximoNivel");
+if(antigo) antigo.remove();
+
+// CRIA BOTÃO NO CANTO
+let botao = document.createElement("button");
+botao.id = "btnProximoNivel";
+botao.style.position = "fixed";
+botao.style.bottom = "20px";
+botao.style.right = "20px";
+botao.style.width = "200px";
+botao.style.zIndex = "1000";
+
+if(progresso[atual].facil && !progresso[atual].medio){
+progresso[atual].medio = true;
+
+botao.innerText = "Ir para Médio";
+botao.onclick = ()=>{
+document.getElementById("final").classList.add("hidden");
+start("medio");
+};
+
+document.body.appendChild(botao);
+
+}else if(progresso[atual].medio && !progresso[atual].dificil){
+progresso[atual].dificil = true;
+
+botao.innerText = "Ir para Difícil";
+botao.onclick = ()=>{
+document.getElementById("final").classList.add("hidden");
+start("dificil");
+};
+
+document.body.appendChild(botao);
+}
+
+// se já for difícil → não cria botão
+}
+
+// voltar
+function voltar(){
+    // Volta para o menu principal
+    document.getElementById("menu").classList.remove("hidden");
+    document.getElementById("nivel").classList.add("hidden");
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("final").classList.add("hidden");
+
+    // ESCONDE o botão voltar no menu principal
+    document.getElementById("btnVoltar").style.display = "none";
+
+    // LIMPA botão de próximo nível (se existir)
+    let prox = document.getElementById("proximoNivel");
+    if(prox){
+        prox.innerHTML = "";
+    }
+
+    // Reseta variáveis (evita bugs)
+    atual = "";
+    perguntas = [];
+    i = 0;
+    pontos = 0;
+}
+
+
+// idioma
+function trocarIdioma(l){
+idioma=l;
+atualizar();
+montar();
+}
+
+// atualizar textos
+function atualizar(){
+document.getElementById("titulo").innerText=t[idioma].titulo;
+document.getElementById("nivelTitulo").innerText=t[idioma].nivel;
+document.getElementById("btnVoltar").innerText=t[idioma].voltar;
+document.getElementById("resultado").innerText=t[idioma].resultado;
+}
+
+// iniciar
+montar();
+atualizar();
+
+</script>
+
+</body>
+</html>
