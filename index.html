@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz 6º Ano</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:'Segoe UI';
+    background:linear-gradient(135deg,#020617,#1e3a8a);
+    color:#fff;
+}
+
+/* ===== HUD XP FIXO ===== */
+#hudXP{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#020617;
+    border-bottom:2px solid #2563eb;
+    text-align:center;
+    padding:10px;
+    font-weight:bold;
+    z-index:999;
+}
+
+/* CONTAINER */
+.container{
+    width:95%;
+    max-width:900px;
+    margin:80px auto 20px auto;
+    background:#020617;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 0 30px #000;
+}
+
+h1,h2,h3{text-align:center}
+
+button{
+    width:100%;
+    padding:15px;
+    margin:6px 0;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{background:#1d4ed8}
+
+.option{
+    display:flex;
+    align-items:center;
+    background:#0f172a;
+    border:2px solid #2563eb;
+    padding:12px;
+    border-radius:12px;
+    margin:10px 0;
+}
+
+.letra{
+    background:#2563eb;
+    padding:6px 12px;
+    margin-right:10px;
+    border-radius:8px;
+}
+
+.correct{background:#22c55e !important}
+.wrong{background:#ef4444 !important}
+
+.hidden{display:none}
+
+#xp{text-align:center;color:#22c55e;font-size:18px}
+
+/* RESPONSIVO */
+@media(min-width:700px){
+button{font-size:16px}
+.option{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- HUD XP -->
+<div id="hudXP">XP: 0 / 200</div>
+
+<div class="container">
+
+<h1>🎮 QUIZ 6º ANO</h1>
+
+<div id="menu">
+<h3>Escolha a matéria</h3>
+<div id="materias"></div>
+</div>
+
+<div id="nivel" class="hidden">
+<h3>Escolha o nível</h3>
+<div id="niveis"></div>
+</div>
+
+<div id="quiz" class="hidden">
+<h2 id="pergunta"></h2>
+<div id="ops"></div>
+<p id="xp"></p>
+</div>
+
+<div id="final" class="hidden">
+<h2 id="resultado"></h2>
+
+<button onclick="repetir()">🔁 Repetir</button>
+<button id="btnProx" onclick="proximoNivel()">🚀 Próximo nível</button>
+<button onclick="voltar()">⬅ Menu</button>
+</div>
+
+<div id="provaFinal" class="hidden">
+<h2>🔥 PROVA FINAL 🔥</h2>
+<p>Agora você desbloqueou o desafio máximo!</p>
+<button onclick="iniciarProva()">COMEÇAR</button>
+</div>
+
+</div>
+
+<audio id="ok" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="no" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+<script>
+
+/* ===== BANCO (COLE O SEU COMPLETO AQUI) ===== */
+const banco = {
+
+/* MATEMÁTICA */
+"M1":{
+facil:[
+{q:"7+5?",a:["12","10","13","11"],c:0},
+{q:"9-4?",a:["5","4","6","3"],c:0},
+{q:"6+3?",a:["9","8","10","7"],c:0},
+{q:"10-6?",a:["4","3","5","2"],c:0}
+],
+medio:[
+{q:"8x3?",a:["24","20","26","22"],c:0},
+{q:"15+7?",a:["22","21","23","20"],c:0},
+{q:"20-9?",a:["11","10","12","9"],c:0}
+],
+dificil:[
+{q:"36÷6?",a:["6","5","7","8"],c:0},
+{q:"25x2?",a:["50","40","45","55"],c:0},
+{q:"100-37?",a:["63","60","65","62"],c:0}
+]
+},
+
+/* GEOMETRIA */
+"M2":{
+facil:[
+{q:"Ângulo reto?",a:["90°","45°","180°","360°"],c:0},
+{q:"Triângulo lados?",a:["3","4","5","6"],c:0},
+{q:"Quadrado lados?",a:["4","3","5","6"],c:0},
+{q:"Círculo lados?",a:["0","1","2","3"],c:0}
+],
+medio:[
+{q:"Perímetro?",a:["soma dos lados","área","volume","altura"],c:0},
+{q:"Área quadrado lado 3?",a:["9","6","3","12"],c:0},
+{q:"Retângulo lados?",a:["4","3","5","6"],c:0}
+],
+dificil:[
+{q:"Área triângulo base4 alt2?",a:["4","8","6","2"],c:0},
+{q:"Ângulo obtuso?",a:[">90°","45°","30°","0°"],c:0},
+{q:"Ângulo agudo?",a:["<90°","180°","360°","100°"],c:0}
+]
+},
+
+/* PORTUGUÊS */
+"Português":{
+facil:[
+{q:"Plural de flor?",a:["flores","flors","flore","florz"],c:0},
+{q:"Substantivo?",a:["cachorro","correr","bonito","rápido"],c:0},
+{q:"Feminino menino?",a:["menina","meninoa","meninaa","menin"],c:0},
+{q:"Começa com vogal?",a:["abacaxi","bola","carro","dado"],c:0}
+],
+medio:[
+{q:"Sinônimo feliz?",a:["alegre","triste","raiva","cansado"],c:0},
+{q:"Antônimo claro?",a:["escuro","branco","azul","alto"],c:0},
+{q:"Verbo?",a:["correr","mesa","casa","livro"],c:0}
+],
+dificil:[
+{q:"Plural pão?",a:["pães","pãos","pãeses","pões"],c:0},
+{q:"Advérbio?",a:["rapidamente","casa","carro","livro"],c:0},
+{q:"Antônimo forte?",a:["fraco","alto","grande","rápido"],c:0}
+]
+},
+
+/* CIÊNCIAS */
+"Ciências":{
+facil:[
+{q:"Planeta azul?",a:["Terra","Marte","Vênus","Júpiter"],c:0},
+{q:"Água é?",a:["líquido","sólido","gás","plasma"],c:0},
+{q:"Sol é?",a:["estrela","planeta","lua","cometa"],c:0},
+{q:"Respiramos?",a:["oxigênio","hidrogênio","CO2","nitrogênio"],c:0}
+],
+medio:[
+{q:"Plantas fazem?",a:["fotossíntese","respiração","digestão","circulação"],c:0},
+{q:"Água ferve?",a:["100°C","0°C","50°C","200°C"],c:0},
+{q:"Corpo tem?",a:["órgãos","rodas","asas","motores"],c:0}
+],
+dificil:[
+{q:"H2O?",a:["água","ar","fogo","terra"],c:0},
+{q:"Coração?",a:["sangue","ar","água","energia"],c:0},
+{q:"Pulmão?",a:["respirar","andar","comer","pensar"],c:0}
+]
+},
+
+/* HISTÓRIA */
+"História":{
+facil:[
+{q:"Brasil colonizado por?",a:["Portugal","Espanha","França","Inglaterra"],c:0},
+{q:"Descobrimento?",a:["1500","1600","1400","1700"],c:0},
+{q:"Primeiros habitantes?",a:["indígenas","reis","soldados","turistas"],c:0},
+{q:"Fim escravidão?",a:["1888","1800","1900","1700"],c:0}
+],
+medio:[
+{q:"Independência?",a:["1822","1800","1900","1500"],c:0},
+{q:"República?",a:["1889","1800","1900","1700"],c:0},
+{q:"Imperador?",a:["Dom Pedro II","Lula","Getúlio","Cabral"],c:0}
+],
+dificil:[
+{q:"Primeira capital?",a:["Salvador","Rio","SP","Brasília"],c:0},
+{q:"Lei Áurea?",a:["Princesa Isabel","Cabral","Getúlio","Dom Pedro"],c:0},
+{q:"Ano república?",a:["1889","1822","1500","1900"],c:0}
+]
+},
+
+/* GEOGRAFIA */
+"Geografia":{
+facil:[
+{q:"Capital Brasil?",a:["Brasília","Rio","SP","Salvador"],c:0},
+{q:"Continente?",a:["América","Europa","Ásia","África"],c:0},
+{q:"Oceano?",a:["Atlântico","Pacífico","Índico","Ártico"],c:0},
+{q:"Maior país?",a:["Rússia","Brasil","China","EUA"],c:0}
+],
+medio:[
+{q:"Clima Brasil?",a:["tropical","polar","ártico","frio"],c:0},
+{q:"Mapa serve?",a:["mostrar lugares","comer","brincar","correr"],c:0},
+{q:"Rio é?",a:["água","terra","ar","fogo"],c:0}
+],
+dificil:[
+{q:"Linha do Equador?",a:["divide hemisférios","oceano","rio","montanha"],c:0},
+{q:"Latitude?",a:["norte-sul","leste-oeste","altura","tempo"],c:0},
+{q:"Longitude?",a:["leste-oeste","norte-sul","altura","tempo"],c:0}
+]
+},
+
+/* ARTES */
+"Artes":{
+facil:[
+{q:"Arte é?",a:["expressão","conta","regra","ciência"],c:0},
+{q:"Pintura usa?",a:["tinta","pedra","areia","água"],c:0},
+{q:"Música usa?",a:["som","luz","água","terra"],c:0},
+{q:"Desenho usa?",a:["lápis","martelo","cola","ferro"],c:0}
+],
+medio:[
+{q:"Cor primária?",a:["vermelho","rosa","marrom","cinza"],c:0},
+{q:"Escultura?",a:["arte 3D","som","texto","dança"],c:0},
+{q:"Teatro?",a:["arte","ciência","jogo","regra"],c:0}
+],
+dificil:[
+{q:"Azul+amarelo?",a:["verde","roxo","laranja","preto"],c:0},
+{q:"Arte visual?",a:["pintura","som","cheiro","gosto"],c:0},
+{q:"Dança?",a:["movimento","parado","escrita","leitura"],c:0}
+]
+},
+
+/* REDAÇÃO */
+"Redação":{
+facil:[
+{q:"Texto tem?",a:["frases","números","cores","sons"],c:0},
+{q:"Começo?",a:["introdução","fim","meio","título"],c:0},
+{q:"Final?",a:["conclusão","meio","título","início"],c:0},
+{q:"Serve?",a:["comunicar","correr","pular","brincar"],c:0}
+],
+medio:[
+{q:"Parágrafo?",a:["grupo de frases","letra","som","cor"],c:0},
+{q:"Tema?",a:["assunto","cor","nome","número"],c:0},
+{q:"Narrativo?",a:["conta história","mede","lista","explica"],c:0}
+],
+dificil:[
+{q:"Argumento?",a:["opinião","nome","cor","som"],c:0},
+{q:"Coesão?",a:["ligação ideias","erro","fim","título"],c:0},
+{q:"Coerência?",a:["sentido","erro","cor","nome"],c:0}
+]
+},
+
+/* INGLÊS */
+"Inglês":{
+facil:[
+{q:"Casa?",a:["house","car","dog","book"],c:0},
+{q:"Gato?",a:["cat","dog","bird","fish"],c:0},
+{q:"Água?",a:["water","fire","earth","air"],c:0},
+{q:"Sol?",a:["sun","moon","star","sky"],c:0}
+],
+medio:[
+{q:"Plural cat?",a:["cats","cat","cates","catss"],c:0},
+{q:"Dog?",a:["cachorro","gato","casa","carro"],c:0},
+{q:"Book?",a:["livro","mesa","casa","porta"],c:0}
+],
+dificil:[
+{q:"Big?",a:["grande","pequeno","alto","baixo"],c:0},
+{q:"Fast?",a:["rápido","lento","alto","baixo"],c:0},
+{q:"Good?",a:["bom","ruim","alto","baixo"],c:0}
+]
+},
+
+/* ESPANHOL */
+"Espanhol":{
+facil:[
+{q:"Gato?",a:["gato","perro","casa","agua"],c:0},
+{q:"Casa?",a:["casa","perro","gato","libro"],c:0},
+{q:"Água?",a:["agua","fuego","aire","tierra"],c:0},
+{q:"Sol?",a:["sol","luna","estrella","cielo"],c:0}
+],
+medio:[
+{q:"Plural gato?",a:["gatos","gato","gatoes","gatoss"],c:0},
+{q:"Perro?",a:["cachorro","gato","casa","água"],c:0},
+{q:"Libro?",a:["livro","mesa","casa","carro"],c:0}
+],
+dificil:[
+{q:"Grande?",a:["grande","pequeño","alto","bajo"],c:0},
+{q:"Rápido?",a:["rápido","lento","alto","baixo"],c:0},
+{q:"Bueno?",a:["bom","ruim","alto","baixo"],c:0}
+]
+}
+
+};
+
+/* ===== SISTEMA ===== */
+
+let atual="",perguntas=[],i=0,xp=0,nivelAtual="";
+let XP_MAX = 200;
+let prova = false;
+
+/* atualizar HUD */
+function atualizarHUD(){
+document.getElementById("hudXP").innerText = `XP: ${xp} / ${XP_MAX}`;
+}
+
+/* juntar todas perguntas */
+function todasPerguntas(){
+let todas=[];
+for(let m in banco){
+["facil","medio","dificil"].forEach(n=>{
+if(banco[m][n]){
+banco[m][n].forEach(p=>todas.push({...p}));
+}
+});
+}
+return todas;
+}
+
+/* embaralhar */
+function embaralhar(p){
+let arr=p.a.map((t,i)=>({t,correta:i===p.c}));
+arr.sort(()=>Math.random()-0.5);
+p.a=arr.map(o=>o.t);
+p.c=arr.findIndex(o=>o.correta);
+return p;
+}
+
+/* montar */
+function montar(){
+let div=document.getElementById("materias");
+div.innerHTML="";
+for(let m in banco){
+let b=document.createElement("button");
+b.innerText=m;
+b.onclick=()=>nivel(m);
+div.appendChild(b);
+}
+}
+
+/* nível */
+function nivel(m){
+atual=m;
+menu.classList.add("hidden");
+nivelDiv.classList.remove("hidden");
+
+let div=document.getElementById("niveis");
+div.innerHTML="";
+
+["facil","medio","dificil"].forEach(n=>{
+let b=document.createElement("button");
+b.innerText=n;
+b.onclick=()=>start(n);
+div.appendChild(b);
+});
+}
+
+/* start */
+function start(n){
+prova=false;
+nivelAtual=n;
+perguntas=banco[atual][n].map(p=>embaralhar({...p}));
+i=0;
+
+nivelDiv.classList.add("hidden");
+quiz.classList.remove("hidden");
+
+mostrar();
+}
+
+/* prova */
+function iniciarProva(){
+prova=true;
+perguntas=todasPerguntas().map(p=>embaralhar({...p}));
+i=0;
+xp=0;
+
+document.getElementById("provaFinal").classList.add("hidden");
+quiz.classList.remove("hidden");
+
+mostrar();
+}
+
+/* mostrar */
+function mostrar(){
+if(i>=perguntas.length){fim();return;}
+
+let p=perguntas[i];
+pergunta.innerText=p.q;
+
+let ops=document.getElementById("ops");
+ops.innerHTML="";
+
+p.a.forEach((txt,idx)=>{
+let b=document.createElement("button");
+b.className="option";
+b.innerHTML=`<span class="letra">${String.fromCharCode(65+idx)}</span>${txt}`;
+b.onclick=()=>responder(idx);
+ops.appendChild(b);
+});
+
+xpTxt.innerText="XP: "+xp;
+atualizarHUD();
+}
+
+/* responder */
+function responder(x){
+let opcoes=document.querySelectorAll(".option");
+
+if(x===perguntas[i].c){
+ok.play();
+opcoes[x].classList.add("correct");
+xp+=10;
+}else{
+no.play();
+opcoes[x].classList.add("wrong");
+opcoes[perguntas[i].c].classList.add("correct");
+}
+
+atualizarHUD();
+
+setTimeout(()=>{
+i++;
+mostrar();
+},600);
+}
+
+/* fim */
+function fim(){
+quiz.classList.add("hidden");
+
+if(xp>=XP_MAX && !prova){
+document.getElementById("provaFinal").classList.remove("hidden");
+return;
+}
+
+final.classList.remove("hidden");
+resultado.innerText=prova ? 
+"🏆 VOCÊ COMPLETOU A PROVA FINAL!" :
+"XP final: "+xp;
+
+if(nivelAtual==="dificil"){
+document.getElementById("btnProx").style.display="none";
+}else{
+document.getElementById("btnProx").style.display="block";
+}
+
+atualizarHUD();
+}
+
+/* repetir */
+function repetir(){
+start(nivelAtual);
+final.classList.add("hidden");
+}
+
+/* próximo nível */
+function proximoNivel(){
+if(nivelAtual==="facil") start("medio");
+else if(nivelAtual==="medio") start("dificil");
+final.classList.add("hidden");
+}
+
+/* voltar */
+function voltar(){
+menu.classList.remove("hidden");
+nivelDiv.classList.add("hidden");
+quiz.classList.add("hidden");
+final.classList.add("hidden");
+atualizarHUD();
+}
+
+/* atalhos */
+const menu=document.getElementById("menu");
+const nivelDiv=document.getElementById("nivel");
+const quiz=document.getElementById("quiz");
+const final=document.getElementById("final");
+const pergunta=document.getElementById("pergunta");
+const xpTxt=document.getElementById("xp");
+const resultado=document.getElementById("resultado");
+const ok=document.getElementById("ok");
+const no=document.getElementById("no");
+
+/* iniciar */
+montar();
+atualizarHUD();
+
+</script>
+
+</body>
+</html>
