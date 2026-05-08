@@ -9,6 +9,54 @@
 <style>
 *{box-sizing:border-box}
 
+/* ===== PERFIL ===== */
+
+#perfilPlayer{
+    position:fixed;
+    top:60px;
+    right:10px;
+
+    background:#0f172a;
+    border:2px solid #2563eb;
+    border-radius:18px;
+
+    padding:10px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    z-index:1000;
+
+    box-shadow:0 0 15px #000;
+}
+
+#fotoPerfil{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    border:2px solid #60a5fa;
+    object-fit:cover;
+}
+
+#infoPerfil{
+    display:flex;
+    flex-direction:column;
+}
+
+#nomePerfil{
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+#infoPerfil button{
+    padding:6px 10px;
+    width:auto;
+    border-radius:10px;
+    background:#2563eb;
+    font-size:13px;
+}
+
 body{
     margin:0;
     font-family:'Segoe UI';
@@ -106,13 +154,357 @@ button:hover{background:#1d4ed8}
 button{font-size:16px}
 .option{font-size:18px}
 }
+
+
+/* ===== PERFIL ===== */
+
+#perfilPlayer{
+    position:fixed;
+    top:60px;
+    right:10px;
+
+    background:#0f172a;
+    border:2px solid #2563eb;
+
+    border-radius:20px;
+
+    padding:10px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    z-index:1000;
+
+    box-shadow:0 0 15px #000;
+}
+
+#fotoPerfil{
+    width:65px;
+    height:65px;
+
+    border-radius:50%;
+
+    border:2px solid #60a5fa;
+
+    object-fit:cover;
+}
+
+#infoPerfil{
+    display:flex;
+    flex-direction:column;
+}
+
+#nomePerfil{
+    font-weight:bold;
+    font-size:18px;
+}
+
+#materiaFavorita{
+    font-size:13px;
+    color:#93c5fd;
+    margin:4px 0;
+}
+
+#infoPerfil button{
+    width:auto;
+    padding:6px 10px;
+    border-radius:10px;
+}
+
+/* ===== JANELA ===== */
+
+#janelaPerfil{
+    position:fixed;
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.7);
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:2000;
+}
+
+/* QUANDO ABRIR */
+#janelaPerfil:not(.hidden){
+    display:flex;
+}
+
+#caixaPerfil{
+    background:#020617;
+
+    width:90%;
+    max-width:450px;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    border:2px solid #2563eb;
+
+    text-align:center;
+}
+
+#caixaPerfil input,
+#caixaPerfil select{
+    width:100%;
+    padding:12px;
+
+    margin:10px 0;
+
+    border:none;
+    border-radius:12px;
+
+    background:#0f172a;
+    color:#fff;
+}
+
+#galeriaFotos{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+
+    margin:15px 0;
+}
+
+#galeriaFotos img{
+    width:70px;
+    height:70px;
+
+    border-radius:50%;
+
+    border:3px solid transparent;
+
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+#galeriaFotos img:hover{
+    transform:scale(1.08);
+}
+
+.fotoSelecionada{
+    border:3px solid #3b82f6 !important;
+}
+
+#btnSalvarPerfil:disabled{
+    background:#475569;
+    cursor:not-allowed;
+    opacity:0.6;
+}
+
+/* ===== BOTÃO RANK ===== */
+
+#btnRank{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+
+    width:auto;
+
+    padding:12px 18px;
+
+    border-radius:15px;
+
+    background:#f59e0b;
+
+    z-index:3000;
+
+    box-shadow:0 0 15px #000;
+}
+
+#btnRank:hover{
+    background:#d97706;
+}
+
+/* ===== JANELA RANK ===== */
+
+#janelaRank{
+    position:fixed;
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.7);
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:4000;
+}
+
+#janelaRank:not(.hidden){
+    display:flex;
+}
+
+#caixaRank{
+    background:#020617;
+
+    width:90%;
+    max-width:500px;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    border:2px solid #f59e0b;
+
+    box-shadow:0 0 20px #000;
+}
+
+#listaRank{
+    margin-top:20px;
+}
+
+.playerRank{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:#0f172a;
+
+    margin:10px 0;
+
+    padding:10px;
+
+    border-radius:12px;
+
+    border:2px solid #1e40af;
+}
+
+.playerInfo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.playerInfo img{
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:2px solid #60a5fa;
+}
+
+.playerXP{
+    color:#22c55e;
+    font-weight:bold;
+}
 </style>
 </head>
 
 <body>
+<!-- ===== PERFIL ===== -->
+<div id="perfilPlayer">
+
+    <img id="fotoPerfil"
+    src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+
+    <div id="infoPerfil">
+
+        <span id="nomePerfil">Jogador</span>
+
+        <span id="materiaFavorita">
+            Matéria favorita: Nenhuma
+        </span>
+
+        <button onclick="abrirEditorPerfil()">
+            ✏ Editar Perfil
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ===== JANELA EDITAR ===== -->
+
+<div id="janelaPerfil" class="hidden">
+
+    <div id="caixaPerfil">
+
+        <h2>🎮 Perfil do Jogador</h2>
+
+        <input type="text"
+        id="inputNome"
+        placeholder="Digite seu nome">
+
+        <select id="selectMateria">
+            <option>Matemática</option>
+            <option>Português</option>
+            <option>Ciências</option>
+            <option>História</option>
+            <option>Geografia</option>
+            <option>Artes</option>
+            <option>Redação</option>
+            <option>Inglês</option>
+            <option>Espanhol</option>
+            <option>Educação física</option>
+        </select>
+
+        <h3>🖼 Escolha sua foto</h3>
+
+        <div id="galeriaFotos">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" onclick="selecionarFoto(this)">
+            
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" onclick="selecionarFoto(this)">
+            
+            <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" onclick="selecionarFoto(this)">
+            
+            <img src="https://cdn-icons-png.flaticon.com/512/921/921124.png" onclick="selecionarFoto(this)">
+            
+            <img src="https://cdn-icons-png.flaticon.com/512/2202/2202112.png" onclick="selecionarFoto(this)">
+
+        </div>
+
+        <button id="btnSalvarPerfil"
+onclick="salvarPerfil()"
+disabled>
+
+💾 Criar Perfil
+
+</button>
+
+    </div>
+
+</div>
 
 <!-- HUD XP -->
 <div id="hudXP">XP: 0 / 500</div>
+
+<!-- ===== BOTÃO RANK ===== -->
+<button id="btnRank" onclick="abrirRank()">
+🏆 Rank
+</button>
+
+<!-- ===== JANELA RANK ===== -->
+<div id="janelaRank" class="hidden">
+
+    <div id="caixaRank">
+
+        <h2>🏆 TOP 10 JOGADORES</h2>
+
+        <div id="listaRank"></div>
+
+        <button onclick="fecharRank()">
+            ❌ Fechar
+        </button>
+
+    </div>
+
+</div>
 
 <div class="container">
 
@@ -383,11 +775,19 @@ Difícil:[
 
 let atual="",perguntas=[],i=0,xp=0,nivelAtual="";
 let XP_MAX = 1000;
+
+/* ===== SALVAR XP ===== */
+xp = Number(localStorage.getItem("xpJogador")) || 0;
+
 let prova = false;
 
-/* atualizar HUD */
 function atualizarHUD(){
-document.getElementById("hudXP").innerText = `XP: ${xp} / ${XP_MAX}`;
+
+    document.getElementById("hudXP")
+    .innerText = `XP: ${xp} / ${XP_MAX}`;
+
+    /* salva XP */
+    localStorage.setItem("xpJogador", xp);
 }
 
 /* juntar todas perguntas */
@@ -514,6 +914,8 @@ mostrar();
 
 /* fim */
 function fim(){
+salvarXPJogador();
+
 quiz.classList.add("hidden");
 
 if(xp>=XP_MAX && !prova){
@@ -571,6 +973,253 @@ const resultado=document.getElementById("resultado");
 const ok=document.getElementById("ok");
 const no=document.getElementById("no");
 
+/* ===== PERFIL ===== */
+
+let fotoEscolhida =
+localStorage.getItem("fotoJogador") ||
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+/* carregar dados */
+document.getElementById("nomePerfil").innerText =
+localStorage.getItem("nomeJogador") || "Jogador";
+
+document.getElementById("materiaFavorita").innerText =
+"Matéria favorita: " +
+(localStorage.getItem("materiaFavorita") || "Nenhuma");
+
+document.getElementById("fotoPerfil").src = fotoEscolhida;
+
+/* abrir editor */
+function abrirEditorPerfil(){
+    document.getElementById("inputNome")
+.addEventListener("input", validarPerfil);
+
+    document.getElementById("selectMateria")
+.addEventListener("change", validarPerfil);
+
+    document.getElementById("janelaPerfil")
+    .classList.remove("hidden");
+
+    document.getElementById("inputNome").value =
+    localStorage.getItem("nomeJogador") || "";
+
+    document.getElementById("selectMateria").value =
+    localStorage.getItem("materiaFavorita") || "Matemática";
+
+    validarPerfil();
+
+    document.getElementById("perfilPlayer")
+    .style.display = "none";
+}
+
+/* selecionar foto */
+function selecionarFoto(img){
+
+    document.querySelectorAll("#galeriaFotos img")
+    .forEach(f=>f.classList.remove("fotoSelecionada"));
+
+    img.classList.add("fotoSelecionada");
+
+    fotoEscolhida = img.src;
+
+    validarPerfil();
+}
+
+/* salvar perfil */
+function salvarPerfil(){
+
+    let nome =
+    document.getElementById("inputNome").value;
+
+    let materia =
+    document.getElementById("selectMateria").value;
+
+    localStorage.setItem("nomeJogador", nome);
+
+    localStorage.setItem(
+        "materiaFavorita",
+        materia
+    );
+
+    localStorage.setItem(
+        "fotoJogador",
+        fotoEscolhida
+    );
+
+    document.getElementById("nomePerfil")
+    .innerText = nome;
+
+    document.getElementById("materiaFavorita")
+    .innerText =
+    "Matéria favorita: " + materia;
+
+    document.getElementById("fotoPerfil")
+    .src = fotoEscolhida;
+
+    /* FECHA A TELA */
+    document.getElementById("janelaPerfil")
+    .classList.add("hidden");
+
+    /* MOSTRA PERFIL */
+    document.getElementById("perfilPlayer")
+    .style.display = "flex";
+}
+
+/* validar perfil */
+function validarPerfil(){
+
+    let nome =
+    document.getElementById("inputNome").value.trim();
+
+    let materia =
+    document.getElementById("selectMateria").value;
+
+    let botao =
+    document.getElementById("btnSalvarPerfil");
+
+    if(
+        nome !== "" &&
+        materia !== "" &&
+        fotoEscolhida !== ""
+    ){
+        botao.disabled = false;
+    }else{
+        botao.disabled = true;
+    }
+
+}
+
+/* ===== SISTEMA RANK ===== */
+
+function salvarXPJogador(){
+
+    let nome =
+    localStorage.getItem("nomeJogador") || "Jogador";
+
+    let foto =
+    localStorage.getItem("fotoJogador") ||
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+    let materia =
+    localStorage.getItem("materiaFavorita") || "Nenhuma";
+
+    let jogadores =
+    JSON.parse(localStorage.getItem("rankQuiz")) || [];
+
+// procura jogador pelo nome antigo salvo
+let nomeAntigo =
+localStorage.getItem("ultimoNomeJogador") || nome;
+
+let jogadorExistente =
+jogadores.find(j => j.nome === nomeAntigo);
+
+if(jogadorExistente){
+
+    jogadorExistente.nome = nome;
+    jogadorExistente.foto = foto;
+    jogadorExistente.materia = materia;
+
+    if(xp > jogadorExistente.xp){
+        jogadorExistente.xp = xp;
+    }
+
+}else{
+
+    jogadores.push({
+        nome:nome,
+        xp:xp,
+        foto:foto,
+        materia:materia
+    });
+
+}
+
+// salva último nome usado
+localStorage.setItem(
+    "ultimoNomeJogador",
+    nome
+);
+
+jogadores.sort((a,b)=> b.xp - a.xp);
+
+    jogadores.sort((a,b)=> b.xp - a.xp);
+
+    localStorage.setItem(
+        "rankQuiz",
+        JSON.stringify(jogadores)
+    );
+}
+
+/* ===== ABRIR RANK ===== */
+
+function abrirRank(){
+
+    let jogadores =
+    JSON.parse(localStorage.getItem("rankQuiz")) || [];
+
+    jogadores.sort((a,b)=> b.xp - a.xp);
+
+    let div =
+    document.getElementById("listaRank");
+
+    div.innerHTML = "";
+
+    if(jogadores.length === 0){
+
+        div.innerHTML = `
+        <p style="text-align:center;">
+            Nenhum jogador ainda.
+        </p>
+        `;
+
+    }else{
+
+        jogadores.slice(0,10).forEach((j,index)=>{
+
+            div.innerHTML += `
+
+            <div class="playerRank">
+
+                <div class="playerInfo">
+
+                    <img src="${j.foto}">
+
+                    <div>
+                        <div>
+                            #${index+1} - ${j.nome}
+                        </div>
+
+                        <small>
+                            📚 ${j.materia}
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="playerXP">
+                    ${j.xp} XP
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+    }
+
+    document.getElementById("janelaRank")
+    .classList.remove("hidden");
+}
+
+/* ===== FECHAR RANK ===== */
+
+function fecharRank(){
+
+    document.getElementById("janelaRank")
+    .classList.add("hidden");
+
+}
 /* iniciar */
 montar();
 atualizarHUD();
