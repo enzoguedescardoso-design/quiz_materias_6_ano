@@ -546,6 +546,12 @@ disabled>
 <audio id="no" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script>
+const BIN_ID = "69fe6612c0954111d8f7fad3";
+
+const API_KEY = "$2a$10$Qhv51pDioZXJk7OZZA4H6e8CUYRo31HNy3rrDYa2l9S04F272bSzS";
+
+const URL =
+`https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 const banco = {
 
@@ -914,13 +920,88 @@ mostrar();
 
 /* fim */
 function fim(){
-salvarXPJogador();
+async function salvarXPJogador(){
 
-quiz.classList.add("hidden");
+    let nome =
+    localStorage.getItem("nomeJogador") || "Jogador";
 
-if(xp>=XP_MAX && !prova){
-document.getElementById("provaFinal").classList.remove("hidden");
-return;
+    let foto =
+    localStorage.getItem("fotoJogador") ||
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+    let materia =
+    localStorage.getItem("materiaFavorita") || "Nenhuma";
+
+    let id =
+    localStorage.getItem("idJogador");
+
+    if(!id){
+
+        id = crypto.randomUUID();
+
+        localStorage.setItem(
+            "idJogador",
+            id
+        );
+    }
+
+    // pega jogadores atuais
+    let req = await fetch(URL, {
+
+        headers:{
+            "X-Master-Key": API_KEY
+        }
+
+    });
+
+    let dados = await req.json();
+
+    let jogadores =
+    dados.record.jogadores || [];
+
+    let existente =
+    jogadores.find(j => j.id === id);
+
+    if(existente){
+
+        existente.nome = nome;
+        existente.foto = foto;
+        existente.materia = materia;
+
+        if(xp > existente.xp){
+            existente.xp = xp;
+        }
+
+    }else{
+
+        jogadores.push({
+            id:id,
+            nome:nome,
+            foto:foto,
+            materia:materia,
+            xp:xp
+        });
+
+    }
+
+    jogadores.sort((a,b)=> b.xp - a.xp);
+
+    // salva online
+    await fetch(URL,{
+
+        method:"PUT",
+
+        headers:{
+            "Content-Type":"application/json",
+            "X-Master-Key": API_KEY
+        },
+
+        body:JSON.stringify({
+            jogadores:jogadores
+        })
+
+    });
+
 }
 
 final.classList.remove("hidden");
@@ -1091,88 +1172,156 @@ function validarPerfil(){
 
 /* ===== SISTEMA RANK ===== */
 
-function salvarXPJogador(){
+async function salvarXPJogador(){
 
-    let nome =
-    localStorage.getItem("nomeJogador") || "Jogador";
+    try{
 
-    let foto =
-    localStorage.getItem("fotoJogador") ||
-    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        let nome =
+        localStorage.getItem("nomeJogador") || "Jogador";
 
-    let materia =
-    localStorage.getItem("materiaFavorita") || "Nenhuma";
+        let foto =
+        localStorage.getItem("fotoJogador") ||
+        "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    let jogadores =
-    JSON.parse(localStorage.getItem("rankQuiz")) || [];
+        let materia =
+        localStorage.getItem("materiaFavorita") || "Nenhuma";
 
-// procura jogador pelo nome antigo salvo
-let nomeAntigo =
-localStorage.getItem("ultimoNomeJogador") || nome;
+        let id =
+        localStorage.getItem("idJogador");
 
-let jogadorExistente =
-jogadores.find(j => j.nome === nomeAntigo);
+        // cria ID único do jogador
+        if(!id){
 
-if(jogadorExistente){
+            id = crypto.randomUUID();
 
-    jogadorExistente.nome = nome;
-    jogadorExistente.foto = foto;
-    jogadorExistente.materia = materia;
+            localStorage.setItem(
+                "idJogador",
+                id
+            );
 
-    if(xp > jogadorExistente.xp){
-        jogadorExistente.xp = xp;
+        }
+
+        // pega jogadores do rank global
+        let req = await fetch(URL,{
+
+            headers:{
+                "X-Master-Key": API_KEY
+            }
+
+        });
+
+        let dados = await req.json();
+
+        let jogadores =
+        dados.record?.jogadores || [];
+
+        // procura jogador existente
+        let existente =
+        jogadores.find(j => j.id === id);
+
+        if(existente){
+
+            // atualiza perfil
+            existente.nome = nome;
+            existente.foto = foto;
+            existente.materia = materia;
+
+            // salva MAIOR XP
+            if(xp > existente.xp){
+                existente.xp = xp;
+            }
+
+        }else{
+
+            // cria novo jogador
+            jogadores.push({
+
+                id:id,
+                nome:nome,
+                foto:foto,
+                materia:materia,
+                xp:xp
+
+            });
+
+        }
+
+        // ordena rank
+        jogadores.sort((a,b)=> b.xp - a.xp);
+
+        // salva online
+        await fetch(URL,{
+
+            method:"PUT",
+
+            headers:{
+                "Content-Type":"application/json",
+                "X-Master-Key": API_KEY
+            },
+
+            body:JSON.stringify({
+                jogadores:jogadores
+            })
+
+        });
+
+        console.log("Rank global salvo!");
+
+    }catch(erro){
+
+        console.error(
+            "Erro ao salvar rank:",
+            erro
+        );
+
     }
 
-}else{
-
-    jogadores.push({
-        nome:nome,
-        xp:xp,
-        foto:foto,
-        materia:materia
-    });
-
 }
-
-// salva último nome usado
-localStorage.setItem(
-    "ultimoNomeJogador",
-    nome
-);
-
-jogadores.sort((a,b)=> b.xp - a.xp);
-
-    jogadores.sort((a,b)=> b.xp - a.xp);
-
-    localStorage.setItem(
-        "rankQuiz",
-        JSON.stringify(jogadores)
-    );
-}
-
 /* ===== ABRIR RANK ===== */
 
-function abrirRank(){
-
-    let jogadores =
-    JSON.parse(localStorage.getItem("rankQuiz")) || [];
-
-    jogadores.sort((a,b)=> b.xp - a.xp);
+async function abrirRank(){
 
     let div =
     document.getElementById("listaRank");
 
-    div.innerHTML = "";
+    div.innerHTML = `
+    <p style="text-align:center;">
+        Carregando rank...
+    </p>
+    `;
 
-    if(jogadores.length === 0){
+    document.getElementById("janelaRank")
+    .classList.remove("hidden");
 
-        div.innerHTML = `
-        <p style="text-align:center;">
-            Nenhum jogador ainda.
-        </p>
-        `;
+    try{
 
-    }else{
+        let req = await fetch(URL,{
+
+            headers:{
+                "X-Master-Key": API_KEY
+            }
+
+        });
+
+        let dados = await req.json();
+
+        let jogadores =
+        dados.record?.jogadores || [];
+
+        jogadores.sort((a,b)=> b.xp - a.xp);
+
+        div.innerHTML = "";
+
+        if(jogadores.length === 0){
+
+            div.innerHTML = `
+            <p style="text-align:center;">
+                Nenhum jogador ainda.
+            </p>
+            `;
+
+            return;
+        }
 
         jogadores.slice(0,10).forEach((j,index)=>{
 
@@ -1185,6 +1334,7 @@ function abrirRank(){
                     <img src="${j.foto}">
 
                     <div>
+
                         <div>
                             #${index+1} - ${j.nome}
                         </div>
@@ -1192,6 +1342,7 @@ function abrirRank(){
                         <small>
                             📚 ${j.materia}
                         </small>
+
                     </div>
 
                 </div>
@@ -1206,10 +1357,63 @@ function abrirRank(){
 
         });
 
+    }catch(erro){
+
+        div.innerHTML = `
+
+        <p style="text-align:center;color:red;">
+
+            Erro ao carregar rank.
+
+        </p>
+
+        `;
+
+        console.error(erro);
+
     }
 
-    document.getElementById("janelaRank")
-    .classList.remove("hidden");
+}
+
+/* ===== FIM ===== */
+
+async function fim(){
+
+    await salvarXPJogador();
+
+    quiz.classList.add("hidden");
+
+    if(xp>=XP_MAX && !prova){
+
+        document.getElementById("provaFinal")
+        .classList.remove("hidden");
+
+        return;
+    }
+
+    final.classList.remove("hidden");
+
+    resultado.innerText =
+    prova ?
+
+    "🏆 VOCÊ COMPLETOU A PROVA FINAL!" :
+
+    "XP final: " + xp;
+
+    if(nivelAtual==="Difícil"){
+
+        document.getElementById("btnProx")
+        .style.display="none";
+
+    }else{
+
+        document.getElementById("btnProx")
+        .style.display="block";
+
+    }
+
+    atualizarHUD();
+
 }
 
 /* ===== FECHAR RANK ===== */
@@ -1220,6 +1424,7 @@ function fecharRank(){
     .classList.add("hidden");
 
 }
+
 /* iniciar */
 montar();
 atualizarHUD();
